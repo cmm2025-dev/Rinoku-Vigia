@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KORA Vigía — Verificación de presencia domiciliaria</title>
+<meta name="description" content="KORA Vigía verifica el cumplimiento del arresto domiciliario con evidencia de nivel judicial. La presencia que el tribunal ordenó, verificada.">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --noche:#0C1422;        /* cielo 03:00 */
+    --noche-2:#111C30;
+    --papel:#F2F4F1;        /* papel de expediente, frío */
+    --tinta:#1A2433;
+    --tinta-suave:#4B5768;
+    --latido:#2FBF8F;       /* verde verificación */
+    --latido-dim:#1E7D5F;
+    --ambar:#D9A441;        /* alerta / pendiente */
+    --linea:#D8DCD6;
+    --linea-noche:#243349;
+    --max:1120px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Source Serif 4', Georgia, serif;
+    color:var(--tinta);
+    background:var(--papel);
+    line-height:1.65;
+    font-size:17px;
+  }
+  ::selection{background:var(--latido);color:var(--noche)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 28px}
+  h1,h2,h3,.display{font-family:'Archivo',system-ui,sans-serif}
+  .mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+  a{color:inherit}
+  :focus-visible{outline:3px solid var(--latido);outline-offset:3px;border-radius:2px}
+
+  /* ============ NAV ============ */
+  nav{
+    position:absolute;top:0;left:0;right:0;z-index:10;
+    padding:22px 0;
+  }
+  .nav-in{display:flex;justify-content:space-between;align-items:center}
+  .logo{font-family:'Archivo';font-weight:800;font-stretch:110%;letter-spacing:.02em;color:#fff;font-size:19px;text-decoration:none}
+  .logo span{color:var(--latido)}
+  .nav-links{display:flex;gap:28px;align-items:center}
+  .nav-links a{color:rgba(255,255,255,.75);text-decoration:none;font-family:'Archivo';font-size:14px;font-weight:500;transition:color .2s}
+  .nav-links a:hover{color:#fff}
+  .nav-cta{border:1px solid rgba(255,255,255,.35);padding:8px 18px;border-radius:3px;color:#fff !important}
+  .nav-cta:hover{border-color:var(--latido);background:rgba(47,191,143,.12)}
+  @media(max-width:720px){.nav-links a:not(.nav-cta){display:none}}
+
+  /* ============ HERO (la noche) ============ */
+  header{
+    background:linear-gradient(180deg, #080D17 0%, var(--noche) 55%, var(--noche-2) 100%);
+    color:#fff;
+    padding:150px 0 0;
+    position:relative;
+    overflow:hidden;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono';font-size:13px;letter-spacing:.22em;
+    color:var(--latido);text-transform:uppercase;margin-bottom:22px;
+  }
+  header h1{
+    font-weight:800;font-stretch:105%;
+    font-size:clamp(38px,6vw,68px);
+    line-height:1.04;letter-spacing:-0.015em;
+    max-width:820px;
+  }
+  header h1 em{font-style:normal;color:var(--latido)}
+  .hero-sub{
+    font-size:clamp(17px,2vw,21px);color:rgba(255,255,255,.72);
+    max-width:640px;margin-top:26px;
+  }
+  .hero-sub strong{color:#fff;font-weight:600}
+  .hero-actions{margin:38px 0 0;display:flex;gap:14px;flex-wrap:wrap}
+  .btn{
+    font-family:'Archivo';font-weight:600;font-size:15px;
+    padding:14px 28px;border-radius:3px;text-decoration:none;
+    display:inline-block;transition:all .2s;border:1px solid transparent;
+  }
+  .btn-primary{background:var(--latido);color:var(--noche)}
+  .btn-primary:hover{background:#3ED4A1;transform:translateY(-1px)}
+  .btn-ghost{border-color:rgba(255,255,255,.3);color:#fff}
+  .btn-ghost:hover{border-color:#fff}
+
+  /* --- Línea de presencia (signature) --- */
+  .presencia{margin-top:84px;padding-bottom:0;position:relative}
+  .presencia-label{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-family:'IBM Plex Mono';font-size:12px;color:rgba(255,255,255,.45);
+    margin-bottom:8px;letter-spacing:.08em;
+  }
+  .presencia-label .verificada{color:var(--latido)}
+  .pulse-box{position:relative}
+  .pulse-svg{display:block;width:100%;height:150px}
+  .pulse-path{
+    fill:none;stroke:var(--latido);stroke-width:2;
+    filter:drop-shadow(0 0 6px rgba(47,191,143,.55));
+  }
+  .pulse-base{fill:none;stroke:var(--linea-noche);stroke-width:1;stroke-dasharray:2 5}
+  .tick-label{font-family:'IBM Plex Mono';font-size:10.5px;fill:rgba(255,255,255,.4)}
+  .tick-check{font-family:'IBM Plex Mono';font-size:10.5px;fill:var(--latido)}
+  @media(prefers-reduced-motion:no-preference){
+    .pulse-path{stroke-dasharray:3000;stroke-dashoffset:3000;animation:draw 5s ease-out forwards .4s}
+    @keyframes draw{to{stroke-dashoffset:0}}
+    .tick-check{opacity:0;animation:appear .4s forwards}
+    @keyframes appear{to{opacity:1}}
+  }
+
+  /* ============ Sections ============ */
+  section{padding:96px 0}
+  .sec-eyebrow{
+    font-family:'IBM Plex Mono';font-size:12.5px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--latido-dim);margin-bottom:16px;
+  }
+  h2{
+    font-weight:800;font-stretch:105%;font-size:clamp(28px,4vw,42px);
+    line-height:1.12;letter-spacing:-0.01em;max-width:760px;margin-bottom:22px;
+  }
+  .lead{font-size:clamp(17px,1.9vw,20px);color:var(--tinta-suave);max-width:700px}
+  .lead strong{color:var(--tinta)}
+
+  /* problema */
+  .problema{border-bottom:1px solid var(--linea)}
+  .contraste{
+    display:grid;grid-template-columns:1fr 1fr;gap:0;
+    margin-top:56px;border:1px solid var(--linea);border-radius:4px;overflow:hidden;
+  }
+  @media(max-width:820px){.contraste{grid-template-columns:1fr}}
+  .contraste>div{padding:36px 34px}
+  .c-hoy{background:#E9EBE7}
+  .c-vigia{background:var(--noche);color:#fff}
+  .c-tag{font-family:'IBM Plex Mono';font-size:12px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:18px}
+  .c-hoy .c-tag{color:#8A93A0}
+  .c-vigia .c-tag{color:var(--latido)}
+  .contraste h3{font-size:21px;font-weight:700;margin-bottom:14px;line-height:1.25}
+  .contraste p{font-size:15.5px;line-height:1.6}
+  .c-hoy p{color:var(--tinta-suave)}
+  .c-vigia p{color:rgba(255,255,255,.75)}
+  .c-list{list-style:none;margin-top:18px}
+  .c-list li{font-size:15px;padding:9px 0;border-top:1px solid rgba(0,0,0,.08);color:var(--tinta-suave)}
+  .c-vigia .c-list li{border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.78)}
+  .c-list .mono{font-size:13px;margin-right:10px}
+  .c-hoy .c-list .mono{color:#9AA3AF}
+  .c-vigia .c-list .mono{color:var(--latido)}
+
+  /* cómo funciona */
+  .pasos{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:60px}
+  @media(max-width:820px){.pasos{grid-template-columns:1fr}}
+  .paso{border-top:3px solid var(--tinta);padding-top:24px}
+  .paso .num{font-family:'IBM Plex Mono';font-size:13px;color:var(--latido-dim);letter-spacing:.1em}
+  .paso h3{font-size:20px;font-weight:700;margin:10px 0 12px}
+  .paso p{font-size:15.5px;color:var(--tinta-suave)}
+
+  /* evidencia */
+  .evidencia{background:var(--noche);color:#fff}
+  .evidencia h2{color:#fff}
+  .evidencia .lead{color:rgba(255,255,255,.7)}
+  .evidencia .lead strong{color:#fff}
+  .props{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--linea-noche);border:1px solid var(--linea-noche);border-radius:4px;overflow:hidden;margin-top:56px}
+  @media(max-width:720px){.props{grid-template-columns:1fr}}
+  .prop{background:var(--noche-2);padding:32px 30px}
+  .prop h3{font-size:17px;font-weight:700;margin-bottom:10px;color:#fff}
+  .prop h3 .mono{color:var(--latido);font-weight:500;font-size:13px;display:block;margin-bottom:8px;letter-spacing:.08em}
+  .prop p{font-size:14.5px;color:rgba(255,255,255,.65);line-height:1.6}
+  .peritos{margin-top:34px;font-family:'IBM Plex Mono';font-size:13px;color:rgba(255,255,255,.5);border-left:2px solid var(--latido);padding-left:18px;line-height:1.7}
+
+  /* actores */
+  .actores-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:26px;margin-top:56px}
+  @media(max-width:820px){.actores-grid{grid-template-columns:1fr}}
+  .actor{background:#fff;border:1px solid var(--linea);border-radius:4px;padding:34px 32px}
+  .actor .rol{font-family:'IBM Plex Mono';font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--latido-dim);margin-bottom:14px}
+  .actor h3{font-size:20px;font-weight:700;line-height:1.3;margin-bottom:12px}
+  .actor p{font-size:15.5px;color:var(--tinta-suave)}
+
+  /* principios */
+  .principios{background:#E9EBE7;border-top:1px solid var(--linea);border-bottom:1px solid var(--linea)}
+  .prin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px 34px;margin-top:56px}
+  @media(max-width:820px){.prin-grid{grid-template-columns:1fr}}
+  .prin h3{font-size:17px;font-weight:700;margin-bottom:8px}
+  .prin p{font-size:14.5px;color:var(--tinta-suave)}
+  .prin .p-ico{width:34px;height:2px;background:var(--latido);margin-bottom:16px}
+
+  /* no hace */
+  .nohace .lead{max-width:760px}
+  .nohace-box{
+    margin-top:48px;border:2px solid var(--tinta);border-radius:4px;
+    padding:42px 40px;background:#fff;max-width:860px;
+  }
+  .nohace-box h3{font-size:22px;font-weight:800;margin-bottom:20px}
+  .nohace-box ul{list-style:none}
+  .nohace-box li{padding:12px 0;border-top:1px solid var(--linea);font-size:16px;color:var(--tinta-suave);display:flex;gap:14px}
+  .nohace-box li .mono{color:var(--ambar);flex-shrink:0}
+  .nohace-final{margin-top:24px;font-family:'Archivo';font-weight:600;font-size:16px}
+
+  /* cta */
+  .cta{background:linear-gradient(180deg,var(--noche-2),#080D17);color:#fff;text-align:center;padding:110px 0}
+  .cta h2{color:#fff;margin:0 auto 18px}
+  .cta p{color:rgba(255,255,255,.65);max-width:560px;margin:0 auto 40px;font-size:17px}
+  .cta .mono-note{font-family:'IBM Plex Mono';font-size:12.5px;color:rgba(255,255,255,.4);margin-top:34px;letter-spacing:.05em}
+
+  footer{background:#080D17;color:rgba(255,255,255,.45);padding:44px 0;font-size:13.5px}
+  .foot-in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+  footer .logo{font-size:16px}
+  .foot-legal{font-family:'IBM Plex Mono';font-size:11.5px;letter-spacing:.04em;max-width:520px;line-height:1.7}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-in">
+    <a class="logo" href="#">KORA <span>VIGÍA</span></a>
+    <div class="nav-links">
+      <a href="#como">Cómo funciona</a>
+      <a href="#evidencia">Evidencia</a>
+      <a href="#principios">Principios</a>
+      <a href="#contacto" class="nav-cta">Conversemos</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Verificación de presencia domiciliaria · Medidas cautelares</div>
+    <h1>La presencia que el tribunal ordenó.<br><em>Verificada.</em></h1>
+    <p class="hero-sub">KORA Vigía es una <strong>infraestructura de confianza judicial</strong>: verifica la presencia de la persona en su domicilio, en los horarios que fijó el juez, y produce, preserva y custodia evidencia objetiva y verificable — sin GPS, sin cámaras de vigilancia, sin nada adherido al cuerpo.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#contacto">Solicitar presentación institucional</a>
+      <a class="btn btn-ghost" href="#como">Ver cómo funciona</a>
+    </div>
+
+    <!-- Signature: la línea de presencia -->
+    <div class="presencia" aria-hidden="true">
+      <div class="presencia-label">
+        <span>ARRESTO DOMICILIARIO NOCTURNO · 22:00 — 06:00</span>
+        <span class="verificada">● PRESENCIA VERIFICADA</span>
+      </div>
+      <div class="pulse-box">
+        <svg class="pulse-svg" viewBox="0 0 1120 150" preserveAspectRatio="none">
+          <line class="pulse-base" x1="0" y1="90" x2="1120" y2="90"></line>
+          <!-- pulso plano con latidos en verificaciones aleatorias -->
+          <path class="pulse-path" d="M0,90 L118,90 l6,-10 6,20 6,-42 6,44 6,-12 6,0 L322,90 l6,-10 6,20 6,-42 6,44 6,-12 6,0 L488,90 l6,-10 6,20 6,-42 6,44 6,-12 6,0 L700,90 l6,-10 6,20 6,-42 6,44 6,-12 6,0 L905,90 l6,-10 6,20 6,-42 6,44 6,-12 6,0 L1120,90"></path>
+          <text class="tick-label" x="118" y="122">23:07</text>
+          <text class="tick-check" x="118" y="138" style="animation-delay:1.1s">✓ verificada</text>
+          <text class="tick-label" x="322" y="122">00:41</text>
+          <text class="tick-check" x="322" y="138" style="animation-delay:2s">✓ verificada</text>
+          <text class="tick-label" x="488" y="122">02:13</text>
+          <text class="tick-check" x="488" y="138" style="animation-delay:2.9s">✓ verificada</text>
+          <text class="tick-label" x="700" y="122">03:52</text>
+          <text class="tick-check" x="700" y="138" style="animation-delay:3.8s">✓ verificada</text>
+          <text class="tick-label" x="905" y="122">05:19</text>
+          <text class="tick-check" x="905" y="138" style="animation-delay:4.6s">✓ verificada</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ EL PROBLEMA ============ -->
+<section class="problema">
+  <div class="wrap">
+    <div class="sec-eyebrow">El problema</div>
+    <h2>Hoy, el arresto domiciliario se controla golpeando puertas.</h2>
+    <p class="lead">Miles de medidas cautelares de permanencia domiciliaria dependen de rondas policiales presenciales: aleatorias, infrecuentes, y siempre desplazadas por la próxima emergencia. El resultado es conocido por todo el sistema — <strong>una medida judicial cuya verificación quedó sujeta a la disponibilidad de dotación</strong>, y una carga que consume horas de patrullaje que los cuadrantes no tienen. La cobertura exigida era imposible con la dotación existente: el sistema existe para resolver esa imposibilidad.</p>
+
+    <div class="contraste">
+      <div class="c-hoy">
+        <div class="c-tag">La ronda presencial</div>
+        <h3>Control por disponibilidad</h3>
+        <p>Una patrulla de dos funcionarios se baja del cuadrante para verificar un domicilio — si el turno lo permite.</p>
+        <ul class="c-list">
+          <li><span class="mono">—</span>Frecuencia errática: días o semanas sin verificación</li>
+          <li><span class="mono">—</span>Confirma que "alguien respondió", no la identidad</li>
+          <li><span class="mono">—</span>El acta tarda semanas en llegar al tribunal</li>
+          <li><span class="mono">—</span>Resta presencia preventiva y respuesta a emergencias</li>
+        </ul>
+      </div>
+      <div class="c-vigia">
+        <div class="c-tag">KORA Vigía</div>
+        <h3>Control por certeza</h3>
+        <p>Un dispositivo fijo en el domicilio verifica biométricamente la presencia, en ventanas impredecibles, durante todo el horario decretado.</p>
+        <ul class="c-list">
+          <li><span class="mono">✓</span>Verificaciones aleatorias todas las noches, todos los casos</li>
+          <li><span class="mono">✓</span>Confirma la identidad de la persona, no del que abre la puerta</li>
+          <li><span class="mono">✓</span>Reporte al sistema en tiempo casi real</li>
+          <li><span class="mono">✓</span>La patrulla vuelve a la prevención y al 133</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CÓMO FUNCIONA ============ -->
+<section id="como">
+  <div class="wrap">
+    <div class="sec-eyebrow">Cómo funciona</div>
+    <h2>Tres pasos. Ninguna decisión la toma la máquina.</h2>
+    <p class="lead">Vigía sigue la resolución judicial, letra por letra. El sistema aporta el registro; la valoración y la decisión son siempre de la autoridad competente, con todas las garantías del debido proceso.</p>
+
+    <div class="pasos">
+      <div class="paso">
+        <div class="num">PASO 1</div>
+        <h3>La resolución configura el sistema</h3>
+        <p>El tribunal decreta arresto domiciliario total, parcial o nocturno. Un funcionario habilitado instala el dispositivo y enrola a la persona en un acto formal, con acta. Los horarios de verificación son exactamente los que fijó el juez — ni un minuto más.</p>
+      </div>
+      <div class="paso">
+        <div class="num">PASO 2</div>
+        <h3>La presencia se verifica en el domicilio</h3>
+        <p>El dispositivo solicita verificaciones biométricas breves en momentos impredecibles dentro del horario decretado. La interacción es discreta y proporcional: pensada para un hogar donde también viven familias, no para castigar. El dato biométrico nunca sale del dispositivo.</p>
+      </div>
+      <div class="paso">
+        <div class="num">PASO 3</div>
+        <h3>El tribunal recibe el expediente, no una alerta suelta</h3>
+        <p>Cada verificación — cumplida o no — queda firmada, sellada en el tiempo y encadenada. Ante un patrón de incumplimiento, el sistema entrega un expediente verificable listo para la audiencia. Y el que cumple, acumula prueba de que cumplió.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EVIDENCIA ============ -->
+<section class="evidencia" id="evidencia">
+  <div class="wrap">
+    <div class="sec-eyebrow" style="color:var(--latido)">Evidencia de nivel judicial</div>
+    <h2>Diseñada para resistir a la contraparte.</h2>
+    <p class="lead">Un parte que dice <strong>"no se encontró a la persona"</strong> es impugnable. Un registro de Vigía está construido, desde el hardware, para sostenerse en una audiencia — cada propiedad es verificable por peritos independientes.</p>
+
+    <div class="props">
+      <div class="prop">
+        <h3><span class="mono">INTEGRIDAD TEMPORAL</span>Sello de tiempo confiable y auditable</h3>
+        <p>Cada registro queda sellado con fuentes de tiempo redundantes y validadas entre sí. Si la hora no es confiable, el sistema prefiere no producir evidencia antes que producir evidencia dudosa.</p>
+      </div>
+      <div class="prop">
+        <h3><span class="mono">NO REPUDIO</span>Registros firmados e inalterables</h3>
+        <p>Los registros se firman en el dispositivo y se encadenan de forma que cualquier alteración o borrado posterior es matemáticamente detectable.</p>
+      </div>
+      <div class="prop">
+        <h3><span class="mono">RESISTENCIA A MANIPULACIÓN</span>El sabotaje también es evidencia</h3>
+        <p>Los intentos de manipulación del dispositivo no lo silencian: quedan registrados como eventos firmados. Ninguna falla es silenciosa.</p>
+      </div>
+      <div class="prop">
+        <h3><span class="mono">TRAZABILIDAD COMPLETA</span>Cadena de custodia de extremo a extremo</h3>
+        <p>Desde la verificación en el domicilio hasta el expediente en el tribunal: cada acceso, cada consulta y cada reporte queda en bitácoras inalterables. Quién vio qué, y cuándo, también es evidencia.</p>
+      </div>
+    </div>
+
+    <p class="peritos" style="border-left-color:#D9A441; color:rgba(255,255,255,.75)">La no respuesta constituye un hecho técnico; el incumplimiento constituye una conclusión jurídica — y esa conclusión es siempre del tribunal. La indisponibilidad técnica del sistema jamás se presenta, por sí sola, como evidencia de incumplimiento.</p>
+    <p class="peritos">Todas las capacidades del sistema se especifican por resultados verificables por peritos independientes — nunca por marcas ni componentes. Es lo que un estándar probatorio exige, y lo que una licitación transparente merece.</p>
+  </div>
+</section>
+
+<!-- ============ ACTORES ============ -->
+<section>
+  <div class="wrap">
+    <div class="sec-eyebrow">Para cada parte del sistema</div>
+    <h2>Un sistema que viene en apoyo, no en fiscalización.</h2>
+    <p class="lead">Vigía no toma partido en el debate entre cárcel y libertad. Hace <strong>verdadera la decisión del juez</strong>, cualquiera sea — y eso beneficia a cada actor del proceso por razones distintas.</p>
+
+    <div class="actores-grid">
+      <div class="actor">
+        <div class="rol">Tribunales</div>
+        <h3>Decretar domiciliario sin decretar impunidad</h3>
+        <p>Con control creíble, el arresto domiciliario deja de ser una libertad de facto. El juez recupera una medida cautelar real entre la prisión preventiva y la libertad — precisamente cuando el sistema más la necesita.</p>
+      </div>
+      <div class="actor">
+        <div class="rol">Fiscalía</div>
+        <h3>Del acta que tarda semanas al expediente inmediato</h3>
+        <p>Un patrón de incumplimiento acreditado, firmado y con cadena de custodia, disponible para la audiencia de revisión sin esperar el viaje administrativo del papel.</p>
+      </div>
+      <div class="actor">
+        <div class="rol">Defensa</div>
+        <h3>El que cumple, por fin puede probarlo</h3>
+        <p>La evidencia de Vigía también es exculpatoria: el imputado que respeta la medida acumula un registro verificable de cumplimiento que su defensor puede exhibir. Y un control confiable amplía el acceso al domiciliario como alternativa real a la prisión preventiva.</p>
+      </div>
+      <div class="actor">
+        <div class="rol">Policías y operadores</div>
+        <h3>Menos rondas rutinarias, más patrullaje preventivo</h3>
+        <p>Vigía elimina la verificación pasiva de puerta en puerta — la tarea más resentida y riesgosa del control de cautelares — y deja el despliegue policial para lo que lo requiere: la respuesta ante un incumplimiento confirmado. Además, el control acreditado protege administrativamente al funcionario que hizo su trabajo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRINCIPIOS ============ -->
+<section class="principios" id="principios">
+  <div class="wrap">
+    <div class="sec-eyebrow">Principios de diseño</div>
+    <h2>Lo que este sistema es — y lo que se niega a ser.</h2>
+
+    <div class="prin-grid">
+      <div class="prin"><div class="p-ico"></div>
+        <h3>Minimización radical</h3>
+        <p>El dispositivo sabe una sola cosa: si la persona estuvo presente en el momento de la verificación. No sabe dónde va, con quién habla ni qué hace. Sin GPS, sin cámara de vigilancia continua, sin micrófono.</p>
+      </div>
+      <div class="prin"><div class="p-ico"></div>
+        <h3>El dato biométrico no viaja</h3>
+        <p>La plantilla biométrica vive y se compara dentro del dispositivo. Al término de la medida, se elimina con borrado verificable.</p>
+      </div>
+      <div class="prin"><div class="p-ico"></div>
+        <h3>La decisión siempre es humana</h3>
+        <p>Vigía registra y reporta. La valoración de un incumplimiento y sus consecuencias corresponden al fiscal y al juez, con contradictorio y debido proceso. El sistema se diseña primero para no acusar mal.</p>
+      </div>
+      <div class="prin"><div class="p-ico"></div>
+        <h3>Dignidad como requisito funcional</h3>
+        <p>En ese domicilio también viven familias. Las verificaciones son breves, discretas y proporcionales al horario. La interacción con el dispositivo debe poder mostrarse en una audiencia sin sonrojo.</p>
+      </div>
+      <div class="prin"><div class="p-ico"></div>
+        <h3>Solo mayores de 18 años</h3>
+        <p>El alcance de KORA Vigía es exclusivamente la población adulta. La empresa no ofrece ni desarrollará esta tecnología para menores de edad fuera de un marco legal específico y salvaguardas diseñadas con los organismos de niñez.</p>
+      </div>
+      <div class="prin"><div class="p-ico"></div>
+        <h3>Independiente del controlado</h3>
+        <p>El sistema no depende del teléfono, la conexión ni la buena voluntad de la persona controlada. Opera por canales propios, con respaldo de energía, y todo intento de interferencia queda registrado.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LO QUE NO HACE ============ -->
+<section class="nohace">
+  <div class="wrap">
+    <div class="sec-eyebrow">Honestidad de alcance</div>
+    <h2>Vigía verifica presencia. Punto.</h2>
+    <p class="lead">Un sistema serio se define también por lo que no promete. Estas son las fronteras de KORA Vigía, dichas de frente:</p>
+
+    <div class="nohace-box">
+      <h3>Lo que este sistema no hace</h3>
+      <ul>
+        <li><span class="mono">✕</span>No vigila el interior del domicilio ni lo que ocurre en él.</li>
+        <li><span class="mono">✕</span>No rastrea la ubicación ni los desplazamientos de nadie.</li>
+        <li><span class="mono">✕</span>No reemplaza ni excluye la verificación presencial: la facultad de la autoridad de verificar en terreno, bajo sus propios protocolos, permanece siempre disponible — el sistema la vuelve selectiva y con causa, no innecesaria.</li>
+        <li><span class="mono">✕</span>No decide, no sanciona, no acusa: entrega registro verificable a quien corresponde decidir.</li>
+        <li><span class="mono">✕</span>No se usa para evaluar retroactivamente el desempeño de unidades policiales.</li>
+      </ul>
+      <p class="nohace-final">Cada una de estas fronteras está en nuestros convenios, no solo en esta página.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="cta" id="contacto">
+  <div class="wrap">
+    <div class="sec-eyebrow" style="color:var(--latido)">Piloto institucional</div>
+    <h2>Hagamos verdadera la decisión del juez.</h2>
+    <p>KORA Vigía está disponible para pilotos con tribunales, fiscalías e instituciones del sistema de justicia y seguridad pública, bajo convenio y con evaluación independiente de resultados.</p>
+    <a class="btn btn-primary" href="mailto:contacto@kora.cl">Solicitar presentación institucional</a>
+    <div class="mono-note">Redes Ingeniería SpA · Chile · Línea de productos KORA</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-in">
+    <div>
+      <a class="logo" href="#">KORA <span>VIGÍA</span></a>
+    </div>
+    <p class="foot-legal">KORA® — Tu latido, tu presencia. Infraestructura de confianza judicial para la verificación de presencia domiciliaria. Exclusivamente mayores de 18 años; el sistema no contempla su utilización respecto de adolescentes sometidos al régimen de responsabilidad penal adolescente. Las capacidades del sistema se especifican por resultados verificables por peritos independientes. © 2026 Redes Ingeniería SpA.</p>
+  </div>
+</footer>
+
+
+
+</body></html>
